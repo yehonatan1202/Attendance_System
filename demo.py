@@ -1,5 +1,7 @@
 import cv2
 from utils import load_model, get_vector, compare, preprocesss, load_vector_class, create_embedding_model, create_distance_model
+
+
 # Load the pre-trained Haar Cascade face detection model
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 # vector_class = load_vector_class('10 people')
