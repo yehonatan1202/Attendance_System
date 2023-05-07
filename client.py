@@ -26,12 +26,15 @@ class Client:
         self.client_socket.sendall(img_bytes)
         # Recive the response from the server
         response = self.client_socket.recv(1)
-        if response == b"1":
-            print('Photo Match')
-            return True
-        else:
+        if response == b"0":
             print('No Photo Match')
-            return False
+            return 0
+        elif response == b"1":
+            print('Photo Match')
+            return 1
+        else:
+            print('Needs More Photos')
+            return 2
 
     def send_string(self, message):
         # Encode the string
@@ -51,3 +54,6 @@ class Client:
         else:
             print('No ID Match')
             return False
+    def close_connection(self):
+        if self.client_socket:
+            self.client_socket.close()
