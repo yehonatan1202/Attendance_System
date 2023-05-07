@@ -13,13 +13,13 @@ list = []
 # Cascade classifier for face detection
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-# Get a list of every folder with more than 3 photos and sort it
-def get_folders_with_more_than_3_photos():
+# Get a list of every folder with more than given number of photos and sort it
+def pick_and_sort(min_size):
     for folder in os.listdir(path):
         sum = 0
         for file in os.listdir(os.path.join(path, folder)):
             sum += 1
-        if (sum > 3):
+        if (sum > min_size):
             list.append((folder, sum))
     list.sort(key=lambda x: x[1])
     print(len(list))
@@ -28,7 +28,6 @@ def get_folders_with_more_than_3_photos():
 def move_folders_and_photos():
     if not os.path.exists(new_path):
         os.makedirs(new_path)
-
     for folder in list:
         if not os.path.exists(os.path.join(new_path, folder[0])):
             os.makedirs(os.path.join(new_path, folder[0]))
@@ -40,7 +39,6 @@ def move_folders_and_photos():
 def crop_photos_around_face():
     if not os.path.exists(cropped_path):
         os.makedirs(cropped_path)
-
     for folder in os.listdir(new_path):
         if not os.path.exists(os.path.join(cropped_path, folder)):
             os.makedirs(os.path.join(cropped_path, folder))

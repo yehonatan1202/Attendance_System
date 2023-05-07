@@ -4,6 +4,7 @@ import random
 import numpy as np
 import copy
 import db_requests
+import time
 
 def face_dataset(class_path, face_path):
     # Setup paths
@@ -54,14 +55,25 @@ def load_model(path):
 
 # Compare two images using the model and returns True if similarity is above 0.5 else False 
 def compare(model, input_img, anchor_img):
-    result = model.predict(
+    result = model(
         list(np.expand_dims([input_img, anchor_img], axis=1)))
     print(result)
     return result > 0.5
 
+# Compare a single anchor embedded vector to a folder of photos
+def compare_batch(embedding_model, distance_model, input_images_dir, anchor_vector):
+    input_images = [os.path.join(input_images_dir, input_img)for input_img in os.listdir(input_images_dir)]
+    results = []
+    for input_img in input_images:
+        input_vector = embedding_model(list(np.expand_dims([preprocess(input_img)], axis=1)))
+        results.append(distance_model(list(np.expand_dims([anchor_vector, input_vector], axis=1))))
+    avrage = (sum(results)/len(results))
+    print(avrage)
+    return avrage > 0.5
+
 # Generate a vector of a given photo using the embedding model
 def generate_vector(embedding_model, img_path):
-    embedding_vector = embedding_model.predict(
+    embedding_vector = embedding_model(
         list(np.expand_dims([preprocess(img_path)], axis=1)))
     return embedding_vector
 
@@ -82,7 +94,10 @@ conf_gpu()
 
 #new_model('C:\\Users\\admin\\Downloads\\faces', 50)
 # model = load_model('siamesemodelv5.h5')
-# data = 0
+# embedding_model = create_embedding_model(model)
+# distance_model = create_distance_model(model)
+# compare_batch(embedding_model, distance_model, 'C:\\Users\\admin\\Downloads\\faces\\0', generate_vector(embedding_model, 'C:\\Users\\admin\\Downloads\\faces\\0\\Colin_Powell_0001.jpg'))
+# # data = 0
 # for face in os.listdir('C:\\Users\\admin\\Downloads\\faces'):
 #     data_temp = face_dataset('C:\\Users\\admin\\Downloads\\faces', face)
 #     data = merge_data(data, data_temp)
@@ -95,10 +110,8 @@ conf_gpu()
 # # print(len(vector_class))
 # # print(len(vector_class[0]))
 
-# embedding_model = create_embedding_model(model)
 # vector = generate_vector(embedding_model, 'C:\\Users\\admin\\Downloads\\faces\\4\\Gerhard_Schroeder_0081.jpg')
 # print(vector)
-# # # distance_model = create_distance_model(model)
 # curr_vector = get_vector(embedding_model, 'C:\\Users\\admin\\Downloads\\faces\\4\\Gerhard_Schroeder_0081.jpg')
 # print(curr_vector)
 # db_requests.set_vector('Gerhard_Schroeder', curr_vector)
