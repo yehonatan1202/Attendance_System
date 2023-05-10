@@ -56,7 +56,7 @@ def load_model(path):
 # Compare two images using the model and returns True if similarity is above 0.5 else False 
 def compare(model, input_img, anchor_img):
     result = model(
-        list(np.expand_dims([input_img, anchor_img], axis=1)))
+        list(np.expand_dims([preprocess(input_img), preprocess(anchor_img)], axis=1)))
     print(result)
     return result > 0.5
 
@@ -93,7 +93,6 @@ conf_gpu()
 
 
 #new_model('C:\\Users\\admin\\Downloads\\faces', 50)
-# model = load_model('siamesemodelv5.h5')
 # embedding_model = create_embedding_model(model)
 # distance_model = create_distance_model(model)
 # compare_batch(embedding_model, distance_model, 'C:\\Users\\admin\\Downloads\\faces\\0', generate_vector(embedding_model, 'C:\\Users\\admin\\Downloads\\faces\\0\\Colin_Powell_0001.jpg'))

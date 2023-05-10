@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from utils import load_model, compare_batch, generate_vector
 from siamese_network import create_embedding_model, create_distance_model
-from db_requests import get_vector, valid_rfid, present
+from db_requests import get_vector, valid_rfid, present, get_content
 
 vectors_path = 'vectors'
 
@@ -103,6 +103,10 @@ class Server:
                         # Get user photo vector
                         self.rfid_photo = get_vector(self.rfid)
                         client_socket.send(b"1")
+                        name = get_content(self.rfid).encode('utf-8')
+                        name_size = len(name).to_bytes(4, byteorder='big')
+                        client_socket.send(name_size)
+                        client_socket.send(name)
                     else:
                         client_socket.send(b"0")
                 else:

@@ -49,8 +49,16 @@ class Client:
         # Recive the response from the server
         response = self.client_socket.recv(1)
         if response == b"1":
+            name_size =  self.client_socket.recv(4)
+            size = int.from_bytes(name_size, byteorder='big')
+            data = b""
+            while len(data) < size:
+                packet = self.client_socket.recv(size - len(data))
+                if not packet:
+                    break
+                data += packet
             print('ID Match')
-            return True
+            return data.decode
         else:
             print('No ID Match')
             return False
