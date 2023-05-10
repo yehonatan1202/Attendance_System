@@ -58,7 +58,7 @@ class Client:
                     break
                 data += packet
             print('ID Match')
-            return data.decode
+            return data.decode('utf-8')
         else:
             print('No ID Match')
             return False

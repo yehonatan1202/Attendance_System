@@ -18,7 +18,7 @@ def scan_card():
         GPIO.cleanup()
     return id
 
-def take_face_photo():
+def take_face_photo(name):
     print('photo')
     loop = True
     # Start capturing video from the default webcam
@@ -43,6 +43,7 @@ def take_face_photo():
             cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
             found = True
         # Display the resulting frame
+        cv2.putText(frame, name, (0, 30), cv2.FONT_HERSHEY_SIMPLEX,1,(255, 0, 0), 2, cv2.LINE_AA)
         cv2.imshow('Face Detection', frame)
         # Exit the loop if the 'q' key is pressed
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -55,13 +56,15 @@ def take_face_photo():
 
 def scan(id):
     #scan and send id
-    if client.send_string(str(id)) == False:
+    name = client.send_string(str(id))
+    if name == False:
         print('id not found')
         return False
-    photo = take_face_photo()
+    print(name)
+    photo = take_face_photo(name)
     res = client.send_photo(photo)
     while(res == 2):
-        photo = take_face_photo()
+        photo = take_face_photo(name)
         res = client.send_photo(photo)
     if res == 1:
         return True
