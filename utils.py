@@ -92,7 +92,7 @@ conf_gpu()
 #     save_vector_class(vector_class_path, vector_class)
 
 
-new_model('C:\\Users\\admin\\Downloads\\faces', 50)
+#new_model('C:\\Users\\admin\\Downloads\\faces', 50)
 # embedding_model = create_embedding_model(model)
 # distance_model = create_distance_model(model)
 # compare_batch(embedding_model, distance_model, 'C:\\Users\\admin\\Downloads\\faces\\0', generate_vector(embedding_model, 'C:\\Users\\admin\\Downloads\\faces\\0\\Colin_Powell_0001.jpg'))
