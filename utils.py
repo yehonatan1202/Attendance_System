@@ -46,7 +46,7 @@ def new_model(class_path, EPOCHS):
     # Test model
     test(test_data, model)
     # Save weights
-    model.save('siamesemodelv5.h5')
+    model.save('siamesemodelv2.h5')
 
 def load_model(path):
     model = make_siamese_model()
@@ -67,9 +67,9 @@ def compare_batch(embedding_model, distance_model, input_images_dir, anchor_vect
     for input_img in input_images:
         input_vector = embedding_model(list(np.expand_dims([preprocess(input_img)], axis=1)))
         results.append(distance_model(list(np.expand_dims([anchor_vector, input_vector], axis=1))))
-    avrage = (sum(results)/len(results))
-    print(avrage)
-    return avrage > 0.5
+    avg = sum(results)/len(results)
+    print(avg)
+    return avg > 0.5
 
 # Generate a vector of a given photo using the embedding model
 def generate_vector(embedding_model, img_path):
@@ -92,7 +92,7 @@ conf_gpu()
 #     save_vector_class(vector_class_path, vector_class)
 
 
-#new_model('C:\\Users\\admin\\Downloads\\faces', 50)
+new_model('C:\\Users\\admin\\Downloads\\faces', 50)
 # embedding_model = create_embedding_model(model)
 # distance_model = create_distance_model(model)
 # compare_batch(embedding_model, distance_model, 'C:\\Users\\admin\\Downloads\\faces\\0', generate_vector(embedding_model, 'C:\\Users\\admin\\Downloads\\faces\\0\\Colin_Powell_0001.jpg'))

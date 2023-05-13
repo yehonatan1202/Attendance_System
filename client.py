@@ -1,5 +1,4 @@
 import socket
-import os
 import cv2
 class Client:
     def __init__(self, server_ip, server_port):

@@ -2,11 +2,12 @@ import os
 import socket
 import cv2
 import numpy as np
-from utils import load_model, compare_batch, generate_vector
+from utils import load_model, compare_batch
 from siamese_network import create_embedding_model, create_distance_model
 from db_requests import get_vector, valid_rfid, present, get_content
 
-vectors_path = 'vectors'
+# Folder path for saving current user recived photos
+user_photos = 'user_photos'
 
 class Server:
     def __init__(self, ip, port):
@@ -14,15 +15,12 @@ class Server:
         self.port = port
         self.server_socket = None
         self.rfid = None
-        self.rfid_photo = None
+        self.user_vector = None
         self.model = load_model('siamesemodelv5.h5')
         self.embedding_model = create_embedding_model(self.model)
         self.distance_model = create_distance_model(self.model)
 
     def start(self):
-        # Reset data
-        self.rfid = None
-        self.rfid_photo = None
         # Create a TCP/IP socket
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Bind the socket to a specific IP address and port
@@ -35,19 +33,15 @@ class Server:
             # Wait for a client to connect
             client_socket, client_address = self.server_socket.accept()
             print(f"Client connected: {client_address[0]}:{client_address[1]}")
-            for img in os.listdir(vectors_path):
-                os.remove(os.path.join(vectors_path, img))
+            # Clear last user data
+            for img in os.listdir(user_photos):
+                os.remove(os.path.join(user_photos, img))
+
             while True:
                 # Recive the massage type: i - image(face), s - string(rfid)
                 msg_type = client_socket.recv(1)
                 # Handle the data based on its type
                 if msg_type == b"i":
-                    # Make sure id recived before photo
-                    # if not self.rfid_photo:
-                    #     print('no id')
-                    #     client_socket.send(b"0")
-                    #     break
-                    
                     # Receive the image size
                     data_size = client_socket.recv(4)
                     size = int.from_bytes(data_size, byteorder='big')
@@ -64,13 +58,15 @@ class Server:
                     img = cv2.imdecode(np.frombuffer(
                         data, dtype=np.uint8), cv2.IMREAD_COLOR)
                    
-                    # Save image
-                    vectors = [os.path.join(vectors_path,name) for name in os.listdir(vectors_path)]
+                   # Get image index
+                    vectors = [os.path.join(user_photos,name) for name in os.listdir(user_photos)]
                     index = len(vectors)
-                    cv2.imwrite(f'{vectors_path}/photo_{index}.jpg', img)
+                    # Save image
+                    cv2.imwrite(f'{user_photos}/photo_{index}.jpg', img)
                     size = index + 1
                     if(size == 10):
-                        match = compare_batch(self.embedding_model, self.distance_model, vectors_path, self.rfid_photo)
+                        # Compare the new user photos to the user vector from the database
+                        match = compare_batch(self.embedding_model, self.distance_model, user_photos, self.user_vector)
                         # Send results and update database
                         if match == False:
                             client_socket.send(b"0")
@@ -79,6 +75,7 @@ class Server:
                             client_socket.send(b"1")
                         break
                     else:
+                        # Needs more photos
                         client_socket.send(b"2")
 
                 elif msg_type == b"s":
@@ -101,8 +98,9 @@ class Server:
                     # Send a response to the client
                     if valid_rfid(self.rfid) == True:
                         # Get user photo vector
-                        self.rfid_photo = get_vector(self.rfid)
+                        self.user_vector = get_vector(self.rfid)
                         client_socket.send(b"1")
+                        # Send user name to client
                         name = get_content(self.rfid).encode('utf-8')
                         name_size = len(name).to_bytes(4, byteorder='big')
                         client_socket.send(name_size)

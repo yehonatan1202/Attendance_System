@@ -8,7 +8,6 @@ from mfrc522 import SimpleMFRC522
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 # Init RFID Reader
 reader = SimpleMFRC522()
-# Camera
 
 def scan_card():
     try:
@@ -19,11 +18,9 @@ def scan_card():
     return id
 
 def take_face_photo(name):
-    print('photo')
     loop = True
     # Start capturing video from the default webcam
     cap = cv2.VideoCapture(0)
-    print('loop')
     # Loop indefinitely
     while loop:
         # Read a frame from the video stream
@@ -35,7 +32,6 @@ def take_face_photo(name):
             gray, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100), flags=cv2.CASCADE_SCALE_IMAGE)
         # list of croped faces in the frame
         faces = []
-        # Draw rectangles around each face
         found = False
         for (x, y, w, h) in faces_cords:
             face = frame[y:y+h, x:x+w]
@@ -50,8 +46,6 @@ def take_face_photo(name):
             break
         if found:
             return face_resized
-#             cv2.imwrite('photo.jpg', face)
-#             return cv2.imread('photo.jpg')
 
 
 def scan(id):

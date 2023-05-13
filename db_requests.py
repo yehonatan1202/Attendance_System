@@ -3,7 +3,7 @@ import requests
 import json
 
 # Define the URL
-url = 'http://127.0.0.1:5000'
+url = 'http://yehonatan1202.pythonanywhere.com/'
 
 # Check if the RFID is valid
 def valid_rfid(rfid):
@@ -12,6 +12,7 @@ def valid_rfid(rfid):
 
 # Get the vector for a given RFID
 def get_vector(rfid):
+    # json -> list -> ndarray
     r = requests.get(f'{url}/get_vector/{rfid}')
     return np.array(json.loads(r.text))
 
